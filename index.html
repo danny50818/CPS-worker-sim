@@ -1,0 +1,2643 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>守護防線：兒少保護全歷程實戰引擎</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <style>
+    :root {
+      --bg: #0b1120;
+      --bg-soft: #020617;
+      --card: #111827;
+      --accent: #22c55e;
+      --accent-soft: rgba(34,197,94,0.1);
+      --danger: #f97316;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --shadow-soft: 0 18px 40px rgba(15,23,42,0.7);
+      --radius-xl: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1d283a 0, #020617 45%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 1200px;
+      min-height: 100vh;
+      padding: 10px;
+      gap: 10px;
+    }
+
+    @media (max-width: 599px) {
+      .app-shell {
+        padding: 8px;
+        gap: 8px;
+      }
+    }
+
+    @media (min-width: 900px) {
+      .app-shell {
+        flex-direction: row;
+        padding: 20px;
+        gap: 20px;
+      }
+    }
+
+    .panel {
+      background: radial-gradient(circle at top left, #0f172a 0, #020617 52%, #020617 100%);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(148,163,184,0.18);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .left-panel {
+      flex: 1;
+      min-height: 45vh;
+    }
+
+    .right-panel {
+      flex: 1;
+      min-height: 45vh;
+    }
+
+    @media (max-width: 899px) {
+      .left-panel {
+        order: 1;
+      }
+      .right-panel {
+        order: 2;
+      }
+    }
+
+    .panel-header {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(148,163,184,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    @media (min-width: 900px) {
+      .panel-header {
+        padding: 14px 16px;
+      }
+    }
+
+    .panel-title {
+      font-size: 14px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      color: var(--muted);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .supervisor-pill {
+      border-color: rgba(34,197,94,0.6);
+      color: #bbf7d0;
+      background: rgba(22,163,74,0.1);
+    }
+
+    .content-body {
+      padding: 10px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    @media (min-width: 900px) {
+      .content-body {
+        padding: 14px 16px 18px;
+        gap: 12px;
+      }
+    }
+
+    .stat-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      align-items: center;
+    }
+
+    .meter-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .bar {
+      position: relative;
+      width: 80px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    @media (min-width: 900px) {
+      .bar {
+        width: 90px;
+      }
+    }
+
+    .bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+      transition: width 0.25s ease-out;
+    }
+
+    .bar-fill.danger {
+      background: linear-gradient(90deg, #f97316, #fb923c);
+    }
+
+    .scenario-brief {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+      background: radial-gradient(circle at top left, rgba(15,23,42,0.9), rgba(2,6,23,0.95));
+      border-radius: 12px;
+      border: 1px solid rgba(75,85,99,0.7);
+      padding: 8px 8px 6px;
+    }
+
+    @media (min-width: 900px) {
+      .scenario-brief {
+        padding: 10px 10px 8px;
+      }
+    }
+
+    .scenario-brief h3 {
+      font-size: 14px;
+      margin: 0 0 4px;
+      color: #e5e7eb;
+    }
+
+    @media (min-width: 900px) {
+      .scenario-brief h3 {
+        margin: 0 0 6px;
+      }
+    }
+
+    .scenario-brief dl {
+      margin: 0;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 6px;
+      row-gap: 3px;
+    }
+
+    @media (min-width: 900px) {
+      .scenario-brief dl {
+        column-gap: 8px;
+        row-gap: 4px;
+      }
+    }
+
+    .scenario-brief dt {
+      font-size: 11px;
+      color: #6b7280;
+      white-space: nowrap;
+    }
+
+    .scenario-brief dd {
+      margin: 0;
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+
+    .start-area {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .primary-btn {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      background: radial-gradient(circle at top left, #4ade80, #22c55e);
+      box-shadow: 0 10px 30px rgba(34,197,94,0.45);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s ease-out;
+    }
+
+    .primary-btn:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 4px 18px rgba(22,163,74,0.5);
+      filter: brightness(0.98);
+    }
+
+    @media (max-width: 599px) {
+      .primary-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .primary-btn span.icon {
+      font-size: 16px;
+    }
+
+    .phase-indicator {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      color: var(--muted);
+      background: rgba(15,23,42,0.9);
+      flex-shrink: 0;
+    }
+
+    .phase-indicator strong {
+      color: #e5e7eb;
+    }
+
+    .dialogue-log {
+      flex: 1;
+      min-height: 0;
+      max-height: 60vh;
+      overflow-y: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: radial-gradient(circle at top, rgba(15,23,42,0.98), rgba(2,6,23,0.98));
+      padding: 8px 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 599px) {
+      .dialogue-log {
+        max-height: 65vh;
+      }
+    }
+
+    .bubble {
+      padding: 7px 9px;
+      border-radius: 10px;
+      max-width: 96%;
+      line-height: 1.5;
+      word-wrap: break-word;
+      position: relative;
+    }
+
+    .bubble.meta {
+      align-self: center;
+      font-size: 11px;
+      color: var(--muted);
+      background: rgba(15,23,42,0.9);
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px dashed rgba(75,85,99,0.9);
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .bubble.parent {
+      align-self: flex-start;
+      background: rgba(30,64,175,0.18);
+      border: 1px solid rgba(59,130,246,0.4);
+    }
+
+    .bubble.worker {
+      align-self: flex-end;
+      background: rgba(22,163,74,0.18);
+      border: 1px solid rgba(34,197,94,0.5);
+    }
+
+    .bubble.child {
+      align-self: flex-start;
+      background: rgba(236,72,153,0.14);
+      border: 1px solid rgba(244,114,182,0.6);
+    }
+
+    .bubble.supervisor {
+      align-self: flex-start;
+      background: rgba(148,163,184,0.18);
+      border: 1px solid rgba(148,163,184,0.6);
+    }
+
+    .bubble.system {
+      align-self: center;
+      background: rgba(8,47,73,0.8);
+      border: 1px solid rgba(56,189,248,0.7);
+    }
+
+    .label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .options {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      border-radius: 10px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.95);
+      color: var(--text);
+      font-size: 13px;
+      padding: 7px 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      transition: background 0.1s ease-out, border-color 0.1s ease-out, transform 0.05s ease-out;
+    }
+
+    .option-btn:hover {
+      border-color: rgba(59,130,246,0.9);
+      background: rgba(15,23,42,0.98);
+    }
+
+    .option-btn:active {
+      transform: scale(0.99);
+    }
+
+    .option-key {
+      font-size: 11px;
+      color: var(--muted);
+      padding-top: 2px;
+      flex-shrink: 0;
+      min-width: 18px;
+    }
+
+    .option-text {
+      flex: 1;
+    }
+
+    .wait-hint {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .footer-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    @media (max-width: 599px) {
+      .footer-hint {
+        text-align: left;
+      }
+    }
+
+    .badge-phase {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sdm-card {
+      border-radius: 10px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.96);
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      display: grid;
+      gap: 2px;
+    }
+
+    .sdm-card strong {
+      color: #e5e7eb;
+    }
+
+    .ending-card {
+      border-radius: 12px;
+      border: 1px solid rgba(34,197,94,0.6);
+      background: rgba(22,163,74,0.1);
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .ending-card.danger {
+      border-color: rgba(248,113,113,0.9);
+      background: rgba(248,113,113,0.08);
+    }
+
+    .mini {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .badge-dimension {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      margin-left: 4px;
+      color: #a5b4fc;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- LEFT: Scenario / HUD -->
+  <section class="panel left-panel">
+    <header class="panel-header">
+      <div class="panel-title">
+        <span>守護防線 · 兒少保護模擬</span>
+      </div>
+      <div class="row">
+        <span class="pill" id="scenarioTag">尚未啟動</span>
+        <span class="pill supervisor-pill" id="supervisorTag">督導人格：未抽籤</span>
+      </div>
+    </header>
+    <div class="content-body">
+      <div class="stat-line">
+        <span class="badge-phase">
+          <span>目前階段：</span>
+          <strong id="phaseLabel">待啟動</strong>
+        </span>
+        <div class="meter-group">
+          <span>信任</span>
+          <div class="bar">
+            <div class="bar-fill" id="trustBar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="meter-group">
+          <span>阻抗</span>
+          <div class="bar">
+            <div class="bar-fill danger" id="resistBar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="meter-group">
+          <span>安置月數</span>
+          <div class="bar">
+            <div class="bar-fill" id="monthBar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <article class="scenario-brief" id="briefingCard">
+        <h3>案件通報資訊卡</h3>
+        <dl>
+          <dt>兒少資訊</dt>
+          <dd id="childInfo">請按「開始模擬」抽出隱藏劇本。</dd>
+          <dt>照顧者</dt>
+          <dd id="caregiverInfo">—</dd>
+          <dt>通報事由</dt>
+          <dd id="reportReason">—</dd>
+          <dt>過往紀錄</dt>
+          <dd id="historyInfo">—</dd>
+          <dt>風險提示</dt>
+          <dd id="riskHint">—</dd>
+        </dl>
+      </article>
+
+      <div class="start-area">
+        <button class="primary-btn" id="startBtn">
+          <span class="icon">▶</span>
+          <span>開始模擬</span>
+        </button>
+        <div style="flex:1; text-align:right;">
+          <div class="mini">啟動後劇本與督導人格將隨機鎖定，無法重抽。</div>
+        </div>
+      </div>
+
+      <div style="margin-top:6px;">
+        <div class="label">第一步行動選擇</div>
+        <div class="options" id="firstActionOptions"></div>
+        <div class="wait-hint" id="waitHint">(等待社工回應...)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: Dialogue / Options -->
+  <section class="panel right-panel">
+    <header class="panel-header">
+      <div class="panel-title">
+        <span>互動紀錄</span>
+      </div>
+      <span class="phase-indicator" id="phaseBadge">
+        Phase 0 · 尚未開始
+      </span>
+    </header>
+    <div class="content-body">
+      <div class="dialogue-log" id="dialogueLog">
+        <div class="bubble meta">
+          系統：請先按左側「開始模擬」，抽出隱藏劇本與督導人格。(等待社工回應...)
+        </div>
+      </div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="footer-hint">
+        每一步都會影響信任與阻抗，也會改變最後是否返家或停止親權。(等待社工回應...)
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // === 核心狀態 ===
+  const state = {
+    started: false,
+    scenario: null,
+    supervisorType: null, // 'support' | 'admin'
+    phase: 0,             // 0:未開始 1:調查 2:督導 3:SDM評估 4:安置 5:結案
+    investigationIndex: 0,
+    trust: 0,
+    resistance: 0,
+    deadlockTriggered: false,
+    placementMonth: 1,
+    monthEncounterIndex: 0,
+    investigationScore: 0,
+    supervisorScore: 0,
+    totalPlacementEncounters: 0,
+    safetyDecision: null,
+    riskDecision: null,
+    assessmentDecision: null,   // 'placement' | 'open_home' | 'close'
+    placementProfile: null      // scenario.id 用於安置個案特質
+  };
+
+  // === 劇本資料庫 ===
+  const scenarios = [
+    {
+      id: 'A1_NAS',
+      type: '毒品寶寶 (NAS)',
+      group: '醫療急迫案',
+      childInfo: '小恩 / 女 / 3個月，早產兒，出生即出現戒斷症狀',
+      caregiverInfo: '案母小琪 / 22歲 / 不穩定工作，疑似藥酒癮；案外公偶爾支援',
+      reportReason: '醫院通報：新生兒出現戒斷症狀，母親產檢紀錄空窗，疑似藥物使用。',
+      history: 'R2：案母少年期即有離家與物質使用紀錄，多次輟學與逃家。R3：懷孕期間未穩定產檢，曾有一次急診疑似過量。R4：家族有酗酒與精神疾病史。',
+      riskHint: '環境髒亂、家中常有不明友人出入、夜間噪音長期影響鄰居。',
+      sdm: {
+        safety: {
+          vulnerability: ['早產且NAS戒斷中，生理脆弱', '主要照顧者疑似物質使用且情緒不穩'],
+          danger: ['照顧者目前疑似持續使用毒品', '家中出入不明人士，環境高度不穩定', '家中無其他穩定成人可即時接手照顧'],
+          safetyPlanCriteria: false,
+          decision: '不安全：需立即安置。'
+        },
+        risk: {
+          historyScore: '高',
+          currentScore: '高',
+          decision: '高度風險：需開案並啟動安置服務。'
+        }
+      }
+    },
+    {
+      id: 'B2_severe',
+      type: '嚴重虐待 (慣性體罰)',
+      group: '身體虐待案',
+      childInfo: '阿哲 / 男 / 7歲，小學一年級，安靜、易受驚嚇',
+      caregiverInfo: '案父 / 35歲，臨時工，情緒起伏大；案母長期打工，較少在家。',
+      reportReason: '學校通報：兒童手臂、大腿與背部多處新舊傷，孩子描述「被爸爸用水管打」。',
+      history: 'R1：鄰居曾多次報警反映夜間吵鬧與兒童哭聲。R2：案父有暴力傷害前科。R3：先前曾有一次通報評估為「不當管教」。',
+      riskHint: '家庭氣氛緊繃，父母伴侶衝突頻繁，父親有酒癮傾向。',
+      sdm: {
+        safety: {
+          vulnerability: ['學齡兒童，依附照顧者以獲得基本需求', '家中可能無其他保護性成年人'],
+          danger: ['多處新舊傷，暴力模式持續且升高', '施暴者否認且無改善動機'],
+          safetyPlanCriteria: false,
+          decision: '不安全：需緊急安置。'
+        },
+        risk: {
+          historyScore: '高',
+          currentScore: '高',
+          decision: '高度風險：必須開案並啟動長期處遇。'
+        }
+      }
+    },
+    {
+      id: 'C1_alone',
+      type: '獨留在家',
+      group: '疏忽與照顧案',
+      childInfo: '小妤 / 女 / 5歲，幼兒園中班，懂事但過度早熟',
+      caregiverInfo: '單親案母 / 29歲，服務業輪班，無主要支持系統。',
+      reportReason: '鄰居通報：夜間多次發現幼童獨自在家，陽台有攀爬行為。',
+      history: 'R1：無正式通報紀錄。R2：社區曾反映孩子疑似未固定上學。R4：案母童年曾經歷父母離異與忽略照顧。',
+      riskHint: '出租雅房，多名房客進出，消防與安全設備不足。',
+      sdm: {
+        safety: {
+          vulnerability: ['學齡前兒童，自我保護能力低', '住處缺乏安全設備'],
+          danger: ['夜間長時間獨處，有墜樓與火災風險', '照顧者缺乏替代照顧安排'],
+          safetyPlanCriteria: true,
+          decision: '暫時可透過安全計畫降低風險，視執行情形考慮安置。'
+        },
+        risk: {
+          historyScore: '中',
+          currentScore: '高',
+          decision: '中高風險：需開案，優先以家庭處遇與親職教育介入。'
+        }
+      }
+    }
+  ];
+
+  // === UI 工具 ===
+  function appendBubble(role, text) {
+    const log = document.getElementById('dialogueLog');
+    const div = document.createElement('div');
+    div.classList.add('bubble');
+    if (role) div.classList.add(role);
+    const labelMap = {
+      parent: '照顧者',
+      worker: '社工',
+      child: '兒少',
+      supervisor: '督導',
+      system: '系統'
+    };
+    if (role && labelMap[role]) {
+      const label = document.createElement('span');
+      label.classList.add('label');
+      label.textContent = labelMap[role];
+      div.appendChild(label);
+    }
+    const span = document.createElement('span');
+    span.textContent = text;
+    div.appendChild(span);
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function appendMeta(text) {
+    const log = document.getElementById('dialogueLog');
+    const div = document.createElement('div');
+    div.classList.add('bubble', 'meta');
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function clearOptions() {
+    document.getElementById('optionsContainer').innerHTML = '';
+  }
+
+  function setPhase(num, label) {
+    state.phase = num;
+    document.getElementById('phaseLabel').textContent = label;
+    const badge = document.getElementById('phaseBadge');
+    badge.textContent = `Phase ${num} · ${label}`;
+  }
+
+  function updateMeters() {
+    const t = Math.max(0, Math.min(100, state.trust));
+    const r = Math.max(0, Math.min(100, state.resistance));
+    document.getElementById('trustBar').style.width = t + '%';
+    document.getElementById('resistBar').style.width = r + '%';
+    const monthPct = ((state.placementMonth - 1) / 12) * 100;
+    document.getElementById('monthBar').style.width = monthPct + '%';
+  }
+
+  function adjustTrust(delta) {
+    state.trust += delta;
+    updateMeters();
+  }
+
+  function adjustResistance(delta) {
+    state.resistance += delta;
+    if (state.resistance >= 70) {
+      state.deadlockTriggered = true;
+    }
+    updateMeters();
+  }
+
+  function setWait(text) {
+    document.getElementById('waitHint').textContent = text;
+  }
+
+  // === 調查階段腳本：每案至少 6–8 個模組 ===
+  function getInvestigationScript(sid) {
+    if (sid === 'A1_NAS') {
+      return [
+        {
+          module: '接觸與入家',
+          parentOpening: '（案母抱胸擋門）小孩在戒斷，你們還一直來吵，她是要怎麼休息？',
+          options: [
+            {
+              key: 'A',
+              sw: '聲音放軟：我知道一直有人來真的很煩，但我今天主要是想確定醫院擔心的那些事情是不是已經穩定了。',
+              parentFollow: '醫院就很誇張啊，我只是感冒去打個針，就被講成吸毒，超誇張的耶。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -3
+            },
+            {
+              key: 'B',
+              sw: '語氣偏硬：我們是依法律來的，妳如果不配合，我這邊只能走比較強制的程序。',
+              parentFollow: '哇，好可怕喔，你們都用這招威脅就對了？那你現在是要怎樣？(等待社工回應...)',
+              trustDelta: -10,
+              resistDelta: 15
+            },
+            {
+              key: 'C',
+              sw: '半開玩笑：說真的，我今天也不想加班。只是醫院那邊真的很擔心小恩，如果一切都沒事，我也比較好跟他們交代。',
+              parentFollow: '（皺眉）好啦好啦，進來講，我也不想每天都被一直問。(等待社工回應...)',
+              trustDelta: 10,
+              resistDelta: -5
+            }
+          ]
+        },
+        {
+          module: '醫療紀錄與用藥釐清',
+          parentOpening: '我就說很多藥都會影響啦，醫生自己不會看喔，一直懷疑來懷疑去。',
+          options: [
+            {
+              key: 'A',
+              sw: '我想再對一下紀錄，妳說的藥是診所開的？還是朋友那邊拿的？',
+              parentFollow: '就...朋友介紹的啦，有時候睡不著吃一點，哪有那麼嚴重。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: 0
+            },
+            {
+              key: 'B',
+              sw: '妳知道小恩現在戒斷有多辛苦嗎？她哭、她全身抖的時候，其實很明顯不是一般感冒藥造成的。',
+              parentFollow: '（沉默幾秒）...我那時候真的壓力很大，你們根本不懂啦。(等待社工回應...)',
+              trustDelta: 5,
+              resistDelta: 5
+            },
+            {
+              key: 'C',
+              sw: '那如果之後醫院或我們再驗到陽性，可能就會影響妳跟小恩一起住的時間，你這樣可以接受嗎？',
+              parentFollow: '你們每個都在威脅我耶，那不然你們現在就把她帶走啊！(等待社工回應...)',
+              trustDelta: -8,
+              resistDelta: 15
+            }
+          ]
+        },
+        {
+          module: '日常照顧與生活節奏',
+          parentOpening: '我每天也都是我在顧，她爸早就不見了，要酸的人又不是你們。',
+          options: [
+            {
+              key: 'A',
+              sw: '聽起來妳幾乎是自己一個人撐，這樣真的很累。平常妳一個人顧她，有沒有誰可以偶爾幫妳頂一下？',
+              parentFollow: '偶爾我爸會來啦，不過他年紀也大了，我也不好意思常麻煩他。(等待社工回應...)',
+              trustDelta: 10,
+              resistDelta: -5
+            },
+            {
+              key: 'B',
+              sw: '所以妳現在的生活作息大概是怎麼安排？我看到桌上有一些藥袋跟空安非他命包裝，要不要一起釐清？',
+              parentFollow: '那不是我的！朋友來放的，你們不要什麼都亂栽在我頭上好不好。(等待社工回應...)',
+              trustDelta: -5,
+              resistDelta: 10
+            },
+            {
+              key: 'C',
+              sw: '如果現在我說，今晚讓小恩先住院觀察，你覺得可以嗎？',
+              parentFollow: '又要把她關在醫院？她那麼小欸，你們到底想把她折磨成怎樣？(等待社工回應...)',
+              trustDelta: -6,
+              resistDelta: 8
+            }
+          ]
+        },
+        {
+          module: '社會網絡與支援系統',
+          parentOpening: '我朋友他們都說，社工就是來搶小孩的，我到底還能相信誰？',
+          options: [
+            {
+              key: 'A',
+              sw: '那在這些朋友裡，有沒有誰是你覺得比較穩定、比較不會拉你去用藥的？',
+              parentFollow: '有啦，有一個以前同事，她都叫我不要再亂混，只是我都沒聽。(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: -2
+            },
+            {
+              key: 'B',
+              sw: '如果你願意，我可以一起幫你整理「讓妳往上拉的人」跟「把妳拖下去的人」，看下一步可以多靠誰。',
+              parentFollow: '聽起來好像在分隊友跟豬隊友，蠻像我的人生。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -1
+            },
+            {
+              key: 'C',
+              sw: '我不會叫你直接跟所有朋友斷乾淨，但至少跟毒品有關的那群，要先有距離，不然小恩回家還是會很危險。',
+              parentFollow: '這個我知道啦，只是要真的做到很難。(等待社工回應...)',
+              trustDelta: 6,
+              resistDelta: 2
+            }
+          ]
+        },
+        {
+          module: '親職責任與自責',
+          parentOpening: '我都已經生了，也沒有丟掉她，這樣還不夠嗎？',
+          options: [
+            {
+              key: 'A',
+              sw: '妳沒有丟下她，這件事我有看到。只是現在的狀況，比較像是妳一邊想當媽媽，一邊也還在跟藥物拔河。',
+              parentFollow: '（嘆氣）有時候真的很想好好當媽媽，可是日子就是一團亂。(等待社工回應...)',
+              trustDelta: 10,
+              resistDelta: -5
+            },
+            {
+              key: 'B',
+              sw: '法律上只要孩子安全有問題，我們就有義務介入，這就是事實。',
+              parentFollow: '好啦你們最偉大、你們最大，反正我說什麼都沒用啦。(等待社工回應...)',
+              trustDelta: -10,
+              resistDelta: 10
+            },
+            {
+              key: 'C',
+              sw: '如果等一下督導問我，我會說妳有在意小恩，也有一些壓力。妳願意讓我這樣講嗎？還是妳有想補充的？',
+              parentFollow: '你至少有聽我講啦...你就跟他說，我不是故意要害她的就好了。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -2
+            }
+          ]
+        },
+        {
+          module: '兒少間接觀察 / 醫療團隊回饋',
+          parentOpening: '（你在病房陪小恩，她抓著娃娃啃、偶爾皺眉）',
+          options: [
+            {
+              key: 'A',
+              sw: '（對著娃娃）哎唷，小恩是不是覺得肚子很不舒服？那我們幫她拍拍，好不好？',
+              parentFollow: '（小恩停止啃咬，往你這邊靠了一點，呼吸慢慢平穩。）(等待社工回應...)',
+              trustDelta: 6,
+              resistDelta: -2
+            },
+            {
+              key: 'B',
+              sw: '（轉頭對護理師）她好像只要有人在旁邊慢慢講話就比較安，之後如果讓她到安置機構，也要有這樣的照顧頻率才行。',
+              parentFollow: '（護理師點頭）對，她其實很需要人陪著。(等待社工回應...)',
+              trustDelta: 5,
+              resistDelta: 0
+            },
+            {
+              key: 'C',
+              sw: '（沉默紀錄，不做太多互動）',
+              parentFollow: '（孩子持續用力啃咬，臉整個皺在一起，哭聲漸大。）(等待社工回應...)',
+              trustDelta: -4,
+              resistDelta: 5
+            }
+          ]
+        },
+        {
+          module: '未來計畫與動機',
+          parentOpening: '如果她真的被安置，我還有什麼角色？是不是就等於我失敗了？',
+          options: [
+            {
+              key: 'A',
+              sw: '安置不是要把妳踢出她的人生，而是讓妳有時間把自己的狀況顧好，再回來當一個比較穩定的媽媽。',
+              parentFollow: '聽起來比較像是暫停，不是直接刪除。(等待社工回應...)',
+              trustDelta: 10,
+              resistDelta: -3
+            },
+            {
+              key: 'B',
+              sw: '如果妳願意，我們可以一起訂三個跟毒品無關的目標，讓我有東西可以寫在報告裡，讓法院看到妳有在動。',
+              parentFollow: '好啦，你寫的時候記得也寫我有來上課，不要只寫我以前多爛。(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: -1
+            },
+            {
+              key: 'C',
+              sw: '如果妳現在覺得真的撐不住，選擇讓她有別的照顧安排，也不代表妳是壞媽媽，但那會是很大的決定，我們要慢慢談。',
+              parentFollow: '我還沒準備好放手，但我知道不能再這樣拖。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: 0
+            }
+          ]
+        }
+      ];
+    }
+
+    if (sid === 'B2_severe') {
+      return [
+        {
+          module: '接觸與入家',
+          parentOpening: '（案父開門，臉很臭）昨天學校來，今天換你們來罵喔？小孩打一下就變家暴？',
+          options: [
+            {
+              key: 'A',
+              sw: '今天不是來罵誰，我主要是想了解昨天到底發生什麼事，才不會一直誤會你。',
+              parentFollow: '他就不聽話啊，一直頂嘴，打兩下就變家暴喔？(等待社工回應...)',
+              trustDelta: 6,
+              resistDelta: -3
+            },
+            {
+              key: 'B',
+              sw: '先說明白，孩子有多處新舊傷，這已經不是「打兩下」的程度。',
+              parentFollow: '你們這些公務員最會誇張，我小時候被打更慘，現在不也好好的？(等待社工回應...)',
+              trustDelta: -6,
+              resistDelta: 10
+            },
+            {
+              key: 'C',
+              sw: '如果方便的話，我們先找個地方坐下來講，我也可以讓你看看學校給我的照片。',
+              parentFollow: '哼，好啊，那你進來，要喝水自己倒。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -4
+            }
+          ]
+        },
+        {
+          module: '傷勢釐清與版本對話',
+          parentOpening: '他自己跌倒也很多次，我怎麼知道是哪一次？',
+          options: [
+            {
+              key: 'A',
+              sw: '這次學校拍的照片，傷勢集中在大腿跟背部，比較不像一般跌倒造成，你覺得呢？',
+              parentFollow: '小孩哪有那麼脆弱，跌倒一下就青一片。(等待社工回應...)',
+              trustDelta: 4,
+              resistDelta: 5
+            },
+            {
+              key: 'B',
+              sw: '我不會直接說就是你打的，但我需要你誠實講，那天你對他做了什麼，這樣我才有辦法幫你講話。',
+              parentFollow: '...好啦，我那天是有拿水管揍他幾下，可是他真的很皮。(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: -3
+            },
+            {
+              key: 'C',
+              sw: '如果你現在選擇什麼都不講，之後檢察官會直接用照片跟醫院鑑定來認定，對你會比較不利。',
+              parentFollow: '所以你是叫我現在先坦白比較划算喔？(等待社工回應...)',
+              trustDelta: 5,
+              resistDelta: 3
+            }
+          ]
+        },
+        {
+          module: '管教信念與成長經驗',
+          parentOpening: '我不打他，他去殺人放火怎麼辦？現在的小孩都被你們寵壞。',
+          options: [
+            {
+              key: 'A',
+              sw: '聽起來你很怕他學壞，這個擔心我可以理解。小時候有人這樣打你嗎？',
+              parentFollow: '有啊，我老爸更誇張，他拿電線打，我都沒說什麼。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -2
+            },
+            {
+              key: 'B',
+              sw: '如果打真的有用，你小時候應該早就「被打到很乖」，可是你還是會做你想做的事，對吧？',
+              parentFollow: '...你這樣講好像有點道理啦。(等待社工回應...)',
+              trustDelta: 7,
+              resistDelta: -1
+            },
+            {
+              key: 'C',
+              sw: '我不會叫你完全不管教，但我要跟你談的是，有沒有別種方式，不會讓他傷成這樣，又能讓他學會負責。',
+              parentFollow: '你們每次都說什麼正向教養，聽起來很假。(等待社工回應...)',
+              trustDelta: 6,
+              resistDelta: 2
+            }
+          ]
+        },
+        {
+          module: '伴侶衝突與酒精使用',
+          parentOpening: '他媽每次都裝好人，事情都推給我，我當然會火大啊。',
+          options: [
+            {
+              key: 'A',
+              sw: '你覺得整個家裡面，永遠是你在扮黑臉，那個不公平感其實也讓你很辛苦。',
+              parentFollow: '對啊，她都說「不要打」，但是小孩不聽話也是丟給我處理。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -1
+            },
+            {
+              key: 'B',
+              sw: '你酒喝多的時候，吵架跟打小孩的機率有沒有比較高？我們要誠實面對這一點。',
+              parentFollow: '有啦，我酒喝多脾氣比較爆，但我最近有比較收斂。(等待社工回應...)',
+              trustDelta: 7,
+              resistDelta: 1
+            },
+            {
+              key: 'C',
+              sw: '如果之後法院在意的點是「家裡暴力氛圍」，那我們就得一起想辦法，怎麼讓這個家不只靠你一個人撐。',
+              parentFollow: '你們不要只來罵我，叫他媽也一起來談啦。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: 0
+            }
+          ]
+        },
+        {
+          module: '兒少晤談 / 忠誠衝突',
+          parentOpening: '（兒少小聲）我如果跟你說實話，爸爸會不會被關？',
+          options: [
+            {
+              key: 'A',
+              sw: '你擔心的是，如果你說真話，爸爸會被處罰，然後會恨你，對嗎？',
+              parentFollow: '（點頭）我也不想他生氣，可是我真的很痛。(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: 0
+            },
+            {
+              key: 'B',
+              sw: '你有權利把發生的事說出來，會不會關人，是大人跟法官要決定的，不是你一個人的責任。',
+              parentFollow: '那我可以只跟你講，不要讓全部的人都知道嗎？(等待社工回應...)',
+              trustDelta: 10,
+              resistDelta: 0
+            },
+            {
+              key: 'C',
+              sw: '如果你現在什麼都不講，之後可能會有更多大人還是一直來問你同樣的問題，這樣會更累，你覺得呢？',
+              parentFollow: '那我還是一次講完好了，不要重複好多次。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: 0
+            }
+          ]
+        },
+        {
+          module: '兒少與父親互動觀察',
+          parentOpening: '（探視室）爸爸一靠近，阿哲就整個人縮到椅子角落。',
+          options: [
+            {
+              key: 'A',
+              sw: '我會先提醒爸爸，今天的目標不是罵人，而是讓阿哲看到「你可以用別的方式跟他說話」。',
+              parentFollow: '（案父勉強坐遠一點）好啦，那你講，我聽。(等待社工回應...)',
+              trustDelta: 7,
+              resistDelta: -1
+            },
+            {
+              key: 'B',
+              sw: '我會請你先跟阿哲說一句「今天我不會打你」，然後停一下，讓他感受你是認真的。',
+              parentFollow: '（案父有點彆扭）我今天不會打你啦...你不要一直躲。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -1
+            },
+            {
+              key: 'C',
+              sw: '如果你現在覺得情緒還太滿，我會建議先不要探視，讓他先安全一點比較重要。',
+              parentFollow: '你現在是又要限制我見小孩喔？(等待社工回應...)',
+              trustDelta: -4,
+              resistDelta: 6
+            }
+          ]
+        },
+        {
+          module: '對安置與法院的態度',
+          parentOpening: '你們如果真的把他送安置，我就跟你們拼了，我才不要小孩在外面被別人管。',
+          options: [
+            {
+              key: 'A',
+              sw: '聽得出來你很怕失去做爸爸的位子。可是現在這樣打下去，他在家裡也不安全，我們才會談安置。',
+              parentFollow: '我只是想教好他啦，不是想害他。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -2
+            },
+            {
+              key: 'B',
+              sw: '安置如果走下去，我會把你願意配合親職課、戒酒的狀況一併寫進去，讓法院看到你不是完全不管。',
+              parentFollow: '那你真的要幫我寫，不然我什麼都沒有。(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: -1
+            },
+            {
+              key: 'C',
+              sw: '如果你現在只跟我說「拼了」，那在決策會議上，我很難幫你辯護，你覺得你想要的是哪一種？',
+              parentFollow: '好啦，我冷靜一點，你講你要寫什麼，我配合。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -1
+            }
+          ]
+        }
+      ];
+    }
+
+    if (sid === 'C1_alone') {
+      return [
+        {
+          module: '接觸與入家',
+          parentOpening: '（案母一邊插鑰匙一邊喘）不好意思啦，我剛下班，真的趕不回來。',
+          options: [
+            {
+              key: 'A',
+              sw: '看得出來妳真的很趕，我們先一起確認一下，小妤一個人在家的情況大概多久會發生一次？',
+              parentFollow: '差不多一週兩三次吧，有時候班表對不起來，我也很怕出事啊。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -3
+            },
+            {
+              key: 'B',
+              sw: '現在是妳一個人在負擔經濟嗎？還是有別人會幫忙？',
+              parentFollow: '就我啊，不然呢？她爸早就不見了，電話也換了。(等待社工回應...)',
+              trustDelta: 6,
+              resistDelta: 0
+            },
+            {
+              key: 'C',
+              sw: '我得先說，讓五歲的小孩晚上自己在家，是法律上不允許的。',
+              parentFollow: '我也知道不行啊，可是誰來顧？你們政府要不要幫我顧？(等待社工回應...)',
+              trustDelta: -4,
+              resistDelta: 8
+            }
+          ]
+        },
+        {
+          module: '獨留情境細節',
+          parentOpening: '我就出去上個班而已，也不是去玩，鄰居就愛打電話通報。',
+          options: [
+            {
+              key: 'A',
+              sw: '那小妤一個人在家的時候，大概都幾點到幾點？她有沒有辦法自己煮東西或上廁所？',
+              parentFollow: '大概晚上七點到十一點吧，她就看卡通、吃我先準備好的東西。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: 0
+            },
+            {
+              key: 'B',
+              sw: '你有沒有教過她，如果真的發生火災或有人亂敲門，她可以找誰求救？',
+              parentFollow: '好像沒有講那麼細耶，我就叫她不要開門。(等待社工回應...)',
+              trustDelta: 7,
+              resistDelta: 1
+            },
+            {
+              key: 'C',
+              sw: '鄰居會通報，某個程度也是在擔心她。如果這次我們可以把安全顧好，下次他們看到，也會比較安心。',
+              parentFollow: '好啦，我知道他們也不是完全在找麻煩。(等待社工回應...)',
+              trustDelta: 7,
+              resistDelta: -1
+            }
+          ]
+        },
+        {
+          module: '托育與替代照顧資源',
+          parentOpening: '你們每次都說可以幫忙找資源，可是我打去托嬰中心都超貴的，我根本付不起。',
+          options: [
+            {
+              key: 'A',
+              sw: '確實，很多托育很貴，所以我們要一起看，有沒有符合你資格的補助或社區據點可以用。',
+              parentFollow: '如果真的有補助，我是願意送啦，不然我也怕。(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: -2
+            },
+            {
+              key: 'B',
+              sw: '除了托嬰中心，有沒有可能是親戚、鄰居、朋友可以固定幫忙一兩個晚上？我們可以幫忙說明，不是叫他們白做工。',
+              parentFollow: '我樓下那個阿姨人還不錯，也許可以問看看。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -1
+            },
+            {
+              key: 'C',
+              sw: '如果真的都沒有照顧人力，那我們就得很嚴肅地談，之後可能得考慮安置，你可以接受嗎？',
+              parentFollow: '我不想她被送走啦，但我也知道這樣繼續下去不行。(等待社工回應...)',
+              trustDelta: 6,
+              resistDelta: 2
+            }
+          ]
+        },
+        {
+          module: '兒少晤談：獨留經驗',
+          parentOpening: '（小妤看著你）媽媽去上班的時候，我會開電視，不然很安靜會害怕。',
+          options: [
+            {
+              key: 'A',
+              sw: '那妳一個人在家的時候，有沒有哪一次是妳覺得最害怕的？可以跟我說嗎？',
+              parentFollow: '有一次外面有人一直按門鈴，我不敢講話，我就躲在棉被裡。(等待社工回應...)',
+              trustDelta: 10,
+              resistDelta: 0
+            },
+            {
+              key: 'B',
+              sw: '妳有沒有一個秘密密碼，如果真的很害怕，可以打電話給誰？',
+              parentFollow: '沒有耶，媽媽說不要亂打電話。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: 0
+            },
+            {
+              key: 'C',
+              sw: '如果我們幫妳安排一個地方，下班前都會有人陪妳玩、陪妳吃飯，妳覺得怎麼樣？',
+              parentFollow: '那媽媽還是會來接我嗎？(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: 0
+            }
+          ]
+        },
+        {
+          module: '案母壓力與自責',
+          parentOpening: '我也知道這樣不對，可是我真的沒得選，你們每天問我一樣的問題，我壓力很大。',
+          options: [
+            {
+              key: 'A',
+              sw: '妳不是故意要讓她危險，而是被生活逼到沒選擇。只是安全這件事，還是得先被顧好。',
+              parentFollow: '我知道啦，不然她真的出事，我一輩子也過不去。(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: -2
+            },
+            {
+              key: 'B',
+              sw: '我們可以一起把「不能再發生的事情」列出來，例如五歲的小孩不能再晚上自己待在家，這種是絕對的。',
+              parentFollow: '好，那你幫我寫清楚，我貼在冰箱上。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -1
+            },
+            {
+              key: 'C',
+              sw: '如果妳覺得這些要求對妳來說太硬，也可以直接跟我說，我們再一起找其他方案。',
+              parentFollow: '我怕講出來你們會覺得我很廢，但我真的需要有人幫忙想。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: 0
+            }
+          ]
+        },
+        {
+          module: '環境安全 / 居住條件',
+          parentOpening: '這裡本來就很老舊，要我改也不是一天就可以改好。',
+          options: [
+            {
+              key: 'A',
+              sw: '我們先從最危險的開始，比如陽台的欄杆、高的櫃子、瓦斯放的位置，一次處理一兩項就好。',
+              parentFollow: '陽台那個我自己也很怕，我可以先叫房東來看。(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: -1
+            },
+            {
+              key: 'B',
+              sw: '我會如實寫「這裡的建物本來就有安全問題」，不是全部怪在你身上，但你願不願意也一起想辦法？',
+              parentFollow: '好啦，你不要把我寫成完全不顧就好。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: 0
+            },
+            {
+              key: 'C',
+              sw: '如果之後真的有機會換到比較安全的地方，你會願意搬嗎？',
+              parentFollow: '願意啊，只是看有沒有錢、租金負擔不負擔得起。(等待社工回應...)',
+              trustDelta: 7,
+              resistDelta: 1
+            }
+          ]
+        },
+        {
+          module: '對安置與開案的態度',
+          parentOpening: '你們會不會一開案就直接把小孩帶走？我真的很怕這個。',
+          options: [
+            {
+              key: 'A',
+              sw: '不是每個案子都要安置，我們會先看你這邊能不能把安全計畫做到位，如果做得到，就不一定要走到安置。',
+              parentFollow: '那我一定要認真做，不然我真的會失去她。(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: -2
+            },
+            {
+              key: 'B',
+              sw: '開案比較像是正式承認「這個家庭需要幫忙」，不是判你有罪。',
+              parentFollow: '這樣聽起來比較不那麼可怕啦。(等待社工回應...)',
+              trustDelta: 8,
+              resistDelta: -1
+            },
+            {
+              key: 'C',
+              sw: '如果哪一天真的談到安置，我會提前跟你說，不會突然有一天人就不見，也會跟你談探視怎麼安排。',
+              parentFollow: '拜託一定要先跟我說，我最怕就是什麼都不知道。(等待社工回應...)',
+              trustDelta: 9,
+              resistDelta: -1
+            }
+          ]
+        }
+      ];
+    }
+
+    return [];
+  }
+
+  // === 督導人格 ===
+  function pickSupervisor() {
+    const type = Math.random() < 0.5 ? 'support' : 'admin';
+    state.supervisorType = type;
+    const tag = document.getElementById('supervisorTag');
+    if (type === 'support') {
+      tag.textContent = '督導人格：支持型';
+    } else {
+      tag.textContent = '督導人格：行政型';
+    }
+  }
+
+  // === 依劇本與進場方式產生首句家長反應，讓調查與案件特質一致 ===
+  function getEntryOpening(sid, mode) {
+    if (sid === 'A1_NAS') {
+      if (mode === 'home') {
+        return '（案母抱胸擋門）醫院已經一直來煩了，現在社工也要來吵，小恩在戒斷欸，你們是要她怎麼休息？(等待社工回應...)';
+      } else if (mode === 'phone') {
+        return '（電話那頭急躁）又是醫院叫你們打的喔？我就說不是吸毒，是感冒藥，你們還要問幾次？(等待社工回應...)';
+      } else {
+        return '（醫護人員在交班）大家這兩天一直在討論小恩的戒斷情況，也在等你們社工的評估。(等待社工回應...)';
+      }
+    }
+    if (sid === 'B2_severe') {
+      if (mode === 'home') {
+        return '（案父站在門口）昨天學校來，今天換你們？小孩打一下就通報，現在是怎樣？(等待社工回應...)';
+      } else if (mode === 'phone') {
+        return '（電話裡有點不耐）電話講一講可以了吧？小孩我都有在管，你們不要聽學校一面之詞。(等待社工回應...)';
+      } else {
+        return '（導師低聲）最近阿哲的傷真的很多，我們也很怕回家之後又被打，才會希望你們多幫忙看看。(等待社工回應...)';
+      }
+    }
+    if (sid === 'C1_alone') {
+      if (mode === 'home') {
+        return '（案母提著菜回家）我剛下班就看到你們站在門口，是鄰居又打電話喔？我真的沒人可以幫忙顧欸。(等待社工回應...)';
+      } else if (mode === 'phone') {
+        return '（電話裡傳來收銀機聲）我現在在上班，你們可不可以講重點？小妤有怎樣嗎？(等待社工回應...)';
+      } else {
+        return '（幼兒園老師）之前她晚上常常一個人在家，我們聽她描述也很擔心，才會跟社區一起通報。(等待社工回應...)';
+      }
+    }
+    // fallback generic
+    if (mode === 'home') {
+      return '（家長從門縫探出頭）你們這時間來是怎樣？鄰居是有多愛告狀？(等待社工回應...)';
+    } else if (mode === 'phone') {
+      return '（電話那頭）電話講一講可以了吧？(等待社工回應...)';
+    } else {
+      return '（單位專業人員）謝謝你來協助，我們對這個案子真的有點擔心。(等待社工回應...)';
+    }
+  }
+
+  // === 調查流程 ===
+  function startInvestigation(entryMode) {
+    const script = getInvestigationScript(state.scenario.id);
+    state._investigationScript = script;
+    state.investigationIndex = 0;
+    setPhase(1, '調查階段');
+    clearOptions();
+
+    const entryLine = getEntryOpening(state.scenario.id, entryMode);
+    if (entryLine) {
+      appendBubble('parent', entryLine);
+    }
+
+    // 依進場方式微調阻抗
+    if (entryMode === 'home') {
+      adjustResistance(5);
+    } else if (entryMode === 'phone') {
+      adjustResistance(3);
+    }
+
+    if (entryMode === 'facility') {
+      appendBubble('system', '你先在專業系統蒐集資訊後，帶著整理過的疑問進家訪。(等待社工回應...)');
+    }
+
+    setTimeout(nextInvestigationRound, 500);
+  }
+
+  function nextInvestigationRound() {
+    const script = state._investigationScript || [];
+    if (state.deadlockTriggered) {
+      renderDeadlockNode();
+      return;
+    }
+    if (state.investigationIndex >= script.length) {
+      startSupervisorDebrief();
+      return;
+    }
+    const round = script[state.investigationIndex];
+    appendMeta(`【調查模組】：${round.module}`);
+    appendBubble('parent', round.parentOpening);
+    renderInvestigationOptions(round);
+  }
+
+  function renderInvestigationOptions(round) {
+    clearOptions();
+    const container = document.getElementById('optionsContainer');
+    round.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.classList.add('option-btn');
+      btn.innerHTML = `<span class="option-key">${opt.key}</span><span class="option-text">${opt.sw}</span>`;
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('button').forEach(b => b.disabled = true);
+        appendBubble('worker', opt.sw);
+        setTimeout(() => {
+          appendBubble('parent', opt.parentFollow);
+        }, 250);
+        adjustTrust(opt.trustDelta || 0);
+        adjustResistance(opt.resistDelta || 0);
+        state.investigationScore += (opt.trustDelta || 0) - (opt.resistDelta || 0) / 2;
+        state.investigationIndex += 1;
+        setTimeout(nextInvestigationRound, 650);
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  // === 死局節點 ===
+  function renderDeadlockNode() {
+    clearOptions();
+    appendMeta('【死局觸發】：家長情緒爆表');
+    appendBubble('parent', '不然你現在就把小孩帶走啊！反正你們最厲害！(等待社工回應...)');
+
+    const container = document.getElementById('optionsContainer');
+    const options = [
+      {
+        key: 'A',
+        label: '安撫同理：先收斂火線',
+        text: '我聽得出來你已經被壓到快爆炸了。今天先到這裡就好，等你願意、我們再來一起想怎麼讓孩子安全。',
+        outcome: 'pass'
+      },
+      {
+        key: 'B',
+        label: '強硬指責：當場對嗆',
+        text: '你這樣對小孩，本來就會被帶走，你自己要負責。',
+        outcome: 'fail'
+      }
+    ];
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.classList.add('option-btn');
+      btn.innerHTML = `<span class="option-key">${opt.key}</span><span class="option-text">${opt.label}</span>`;
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('button').forEach(b => b.disabled = true);
+        appendBubble('worker', opt.text);
+        if (opt.outcome === 'pass') {
+          appendBubble('parent', '...算了，你先回去。我也需要冷靜一下。(等待社工回應...)');
+          adjustTrust(3);
+          adjustResistance(-5);
+          setTimeout(() => startSupervisorDebrief(), 600);
+        } else {
+          appendBubble('parent', '（砰）門直接關上，電話也不接。(等待社工回應...)');
+          adjustTrust(-15);
+          adjustResistance(10);
+          setTimeout(() => {
+            appendMeta('調查以破裂收場，督導將在檢討會議中嚴格檢視你的應對。(等待社工回應...)');
+            startSupervisorDebrief(true);
+          }, 600);
+        }
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  // === 督導回饋 ===
+  function startSupervisorDebrief(fromDeadlock = false) {
+    clearOptions();
+    setPhase(2, '督導回饋');
+    appendMeta('【階段 1.5】你回到辦公室，督導把你叫了過去。');
+
+    if (state.supervisorType === 'support') {
+      appendBubble('supervisor', '剛才辛苦了。針對這個案子，你覺得最擔心的風險點是什麼？家長剛剛那個反應，你覺得他是真的配合嗎？(等待社工回應...)');
+    } else {
+      appendBubble('supervisor', '這個案子通報單我看過了。你剛剛去看了，證據夠不夠？SDM 分數算出來沒？如果資料不完整就不要隨便寫「安全」，免得被打槍。(等待社工回應...)');
+    }
+
+    const container = document.getElementById('optionsContainer');
+    const opts = [
+      {
+        key: 'A',
+        label: '誠實描述：承認自己卡住的地方',
+        text: '我覺得自己在幾個地方有點急，讓家長整個炸開。風險高這點是清楚的，只是我還沒抓到可以談下去的切入點。'
+      },
+      {
+        key: 'B',
+        label: '防衛合理化：強調自己已經很盡力',
+        text: '我覺得以現場那個狀況，我能做到的也就這樣了，家長本來就很難搞，其實是制度害得大家都很緊繃。'
+      },
+      {
+        key: 'C',
+        label: '聚焦兒少：把重點拉回孩子安全',
+        text: '不管家長怎麼說，我覺得孩子現在就是不安全。接下來我會用 SDM 把風險寫清楚，讓團隊有空間做安置決策。'
+      }
+    ];
+
+    opts.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.classList.add('option-btn');
+      btn.innerHTML = `<span class="option-key">${opt.key}</span><span class="option-text">${opt.label}</span>`;
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('button').forEach(b => b.disabled = true);
+        appendBubble('worker', opt.text);
+        setTimeout(() => {
+          let score = 0;
+          if (state.supervisorType === 'support') {
+            if (opt.key === 'A') {
+              appendBubble('supervisor', '妳有看到自己在現場的狀態，這很不容易。下次我們可以一起練習，怎麼在談安置之前先讓家長有空間吐出他的恐懼。(等待社工回應...)');
+              score = 8;
+            } else if (opt.key === 'B') {
+              appendBubble('supervisor', '我聽得出來妳也很委屈，但如果只看到「制度害大家」，很容易忽略妳自己在現場其實還有可以調整的空間。(等待社工回應...)');
+              score = 5;
+            } else {
+              appendBubble('supervisor', '妳把焦點拉回孩子安全很重要，但也要記得，大人的情緒也是風險的一部分。之後我們一起把 SDM 寫細一點。(等待社工回應...)');
+              score = 9;
+            }
+          } else {
+            if (opt.key === 'A') {
+              appendBubble('supervisor', '好，知道自己哪裡卡，回去把逐字稿打一份給我，我們一起檢討。不過 SDM 還是要在時限內交出來。(等待社工回應...)');
+              score = 7;
+            } else if (opt.key === 'B') {
+              appendBubble('supervisor', '抱怨制度我可以理解，但遇到難搞家長是家防中心的常態。你下次如果還是只會說「我已經盡力」，那我在考核上就會如實反映。(等待社工回應...)');
+              score = 4;
+            } else {
+              appendBubble('supervisor', '安全判斷先拉好是對的。等一下你把指標打好，記得附件要齊全，這案子很有可能到法院去。(等待社工回應...)');
+              score = 8;
+            }
+          }
+          state.supervisorScore = score;
+          appendMeta(`（督導心中給你的本次調查表現評分：約 ${score}/10）(等待社工回應...)`);
+        }, 400);
+
+        setTimeout(startAssessment, 1000);
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  // === SDM 評估 ===
+  function startAssessment() {
+    clearOptions();
+    setPhase(3, 'SDM 評估');
+
+    const sdm = state.scenario.sdm;
+    appendMeta('【階段二】你開始填寫 SDM-S 安全評估與 SDM-R 風險評估。(等待社工回應...)');
+
+    const container = document.getElementById('optionsContainer');
+    const sdmCard = document.createElement('div');
+    sdmCard.classList.add('sdm-card');
+    sdmCard.innerHTML = `
+      <div><strong>SDM-S 安全評估</strong></div>
+      <div>脆弱因素：${sdm.safety.vulnerability.join('、')}</div>
+      <div>危險因子：${sdm.safety.danger.join('、')}</div>
+      <div>安全計畫是否足以取代安置：${sdm.safety.safetyPlanCriteria ? '是（可考慮留家）' : '否（不足以取代安置）'}</div>
+      <div>安全結論：<strong>${sdm.safety.decision}</strong></div>
+      <br/>
+      <div><strong>SDM-R 風險評估</strong></div>
+      <div>歷史風險分數：${sdm.risk.historyScore}</div>
+      <div>現況風險分數：${sdm.risk.currentScore}</div>
+      <div>風險結論：<strong>${sdm.risk.decision}</strong></div>
+    `;
+    container.appendChild(sdmCard);
+
+    appendBubble('system', '你與督導及團隊討論後，準備做第一階段處遇決策。(等待社工回應...)');
+
+    const btnWrap = document.createElement('div');
+    btnWrap.style.marginTop = '8px';
+    btnWrap.style.display = 'flex';
+    btnWrap.style.flexDirection = 'column';
+    btnWrap.style.gap = '6px';
+
+    const opts = [
+      { key: 'A', label: '結案（風險低、家長功能穩定）', decision: 'close' },
+      { key: 'B', label: '開案留家（中度風險，安全計畫可行）', decision: 'open_home' },
+      { key: 'C', label: '緊急安置（不安全／高度風險）', decision: 'placement' }
+    ];
+
+    opts.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.classList.add('option-btn');
+      btn.innerHTML = `<span class="option-key">${opt.key}</span><span class="option-text">${opt.label}</span>`;
+      btn.addEventListener('click', () => {
+        btnWrap.querySelectorAll('button').forEach(b => b.disabled = true);
+        state.safetyDecision = sdm.safety.decision;
+        state.riskDecision = sdm.risk.decision;
+        state.assessmentDecision = opt.decision;
+
+        if (opt.decision === 'close' &&
+          (sdm.safety.decision.indexOf('不安全') !== -1 || sdm.risk.decision.indexOf('高') !== -1)) {
+          appendBubble('system', '團隊其他成員對「結案」有明顯疑慮，會議氣氛瞬間僵住。(等待社工回應...)');
+          state.investigationScore -= 10;
+        } else if (opt.decision === 'placement' &&
+          (sdm.safety.safetyPlanCriteria && sdm.risk.currentScore === '中')) {
+          appendBubble('system', '有委員提醒：「以目前指標，直接安置恐怕過度介入，可能遭家長申訴擾民」。(等待社工回應...)');
+          state.investigationScore -= 5;
+        } else {
+          appendBubble('system', '團隊大致同意你的判斷，會議在緊張但肯定的氣氛中結束。(等待社工回應...)');
+          state.investigationScore += 5;
+        }
+
+        if (opt.decision === 'placement') {
+          setTimeout(startPlacement, 700);
+        } else if (opt.decision === 'open_home') {
+          appendMeta('（你選擇開案留家，但系統為了訓練安置歷程，稍後將自動安排安置模擬個案。）(等待社工回應...)');
+          setTimeout(startPlacement, 900);
+        } else {
+          appendMeta('（你選擇結案；為了完整演練安置歷程，系統稍後會以另一個安置中個案進行模擬。）(等待社工回應...)');
+          setTimeout(startPlacement, 1000);
+        }
+      });
+      btnWrap.appendChild(btn);
+    });
+
+    container.appendChild(btnWrap);
+  }
+
+  // === 安置歷程腳本（共用對話骨幹，使用 meta 延伸個案特質） ===
+  function generatePlacementMonths(profileId) {
+    const months = [];
+    function m(month, label, encounters) {
+      months.push({ month, label, encounters });
+    }
+
+    m(1, '安置第 1 個月（急性期）', [
+      {
+        dimension: '探視規則 / 家長情緒',
+        parentOpening: '（家長憤怒打電話）你們把小孩帶走就算了，還不讓我每天去看，這是什麼道理？',
+        options: [
+          {
+            key: 'A',
+            sw: '我知道妳現在很氣，也很怕看不到孩子。但我們得先讓孩子在新環境穩定下來，再慢慢調整探視頻率。',
+            parentFollow: '（語氣仍高）那你至少要講清楚規則，不要每個人講的不一樣。(等待社工回應...)',
+            trustDelta: 7,
+            resistDelta: -3
+          },
+          {
+            key: 'B',
+            sw: '探視不是在懲罰妳，而是要看妳跟孩子相處的狀態有沒有讓他更安心，我才有辦法幫妳說話。',
+            parentFollow: '（稍微冷靜）所以你會寫進去喔？不是只看機構講的？(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: -2
+          },
+          {
+            key: 'C',
+            sw: '如果妳現在的情緒還是這麼滿，我會擔心孩子在探視時會被妳的情緒嚇到，我們要不要先約一個面談，好好講？',
+            parentFollow: '（沉默一下）好啦，那你約時間，我再請假。(等待社工回應...)',
+            trustDelta: 6,
+            resistDelta: -1
+          }
+        ]
+      },
+      {
+        dimension: '親職動機 / 自我責備',
+        parentOpening: '（面談室）我知道啦，一定又是我不會當媽，才會搞到現在變這樣。',
+        options: [
+          {
+            key: 'A',
+            sw: '我聽到妳一直在怪自己，可是我也想知道，在發生這些事之前，妳有沒有哪一段是覺得自己「其實有努力在當媽」的？',
+            parentFollow: '（眼眶紅）有啊，我懷孕那時候還有去產檢，只是後面真的撐不住。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -2
+          },
+          {
+            key: 'B',
+            sw: '如果我們只停在「我就是爛」這個結論，妳很容易直接放棄。我要的是看見妳願意改變的那一塊。',
+            parentFollow: '（苦笑）你們都說要改變，可是改變要錢又要時間，我也不知道可以撐多久。(等待社工回應...)',
+            trustDelta: 6,
+            resistDelta: 2
+          },
+          {
+            key: 'C',
+            sw: '我不會安慰妳說「妳沒有錯」，可是我可以陪妳一起看：哪些是妳責任，哪些是妳一個人真的背不動的。',
+            parentFollow: '...那你要講算話，不要我講一堆，最後還是寫我不配合。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: -1
+          }
+        ]
+      }
+    ]);
+
+    m(2, '安置第 2 個月（親職技巧啟動）', [
+      {
+        dimension: '管教方式',
+        parentOpening: '（親職課後）老師都說什麼「不打不罵教養」，聽起來都很漂亮啦，現實根本不是那樣。',
+        options: [
+          {
+            key: 'A',
+            sw: '你最怕的是，如果不打不罵，他就會爬到你頭上？還是怕他將來出事，你會被怪沒教好？',
+            parentFollow: '兩個都有吧，我小時候被大人對待的方式，現在想想也是一堆陰影。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: -1
+          },
+          {
+            key: 'B',
+            sw: '我們不要一次談那麼大，你可不可以先挑一件「你願意試著不用打」的小事情？我下次來跟你對一下。',
+            parentFollow: '小事喔...可能是寫功課吧，我可以先不打，先罰他少看電視。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -2
+          },
+          {
+            key: 'C',
+            sw: '如果今天法院坐在這裡聽，你覺得他們會怎麼看你說「不打不罵做不到」這句話？',
+            parentFollow: '（皺眉）所以你現在是在暗示我之後會被告就對了？(等待社工回應...)',
+            trustDelta: -5,
+            resistDelta: 8
+          }
+        ]
+      },
+      {
+        dimension: '兒少依附觀察',
+        parentOpening: '（探視室，孩子貼在機構社工旁邊）他現在都黏你們，不黏我了欸。',
+        options: [
+          {
+            key: 'A',
+            sw: '聽起來你有一點吃醋，也有一點心酸。這代表他在這裡有感覺到安全，但不代表他不要你。',
+            parentFollow: '可是看起來就是比較信你們啊，我叫他他都不太理我。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: -1
+          },
+          {
+            key: 'B',
+            sw: '我們可不可以試一個小實驗？等一下換你坐在這裡，我退後一點，看他會不會慢慢靠近你。',
+            parentFollow: '...好啦，那你不要一直看我，我會很緊張。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -2
+          },
+          {
+            key: 'C',
+            sw: '如果你只看到「他不要我」，你跟他的互動就會越來越僵。你願不願意試著先看「他還願意跟你分享什麼」？',
+            parentFollow: '（低頭）他剛剛有拿畫給我看啦，只是我在生氣沒理他。(等待社工回應...)',
+            trustDelta: 7,
+            resistDelta: 0
+          }
+        ]
+      }
+    ]);
+
+    m(3, '安置第 3 個月（生活穩定度）', [
+      {
+        dimension: '經濟與工作型態',
+        parentOpening: '最近一直要請假去上課、探視，我老闆已經在不爽了，我又不能跟他說我小孩被安置。',
+        options: [
+          {
+            key: 'A',
+            sw: '你現在是卡在「工作怕不保」跟「孩子又怕照顧不到」中間，你一個人扛兩邊，很容易爆掉。',
+            parentFollow: '對啊，有時候我就想說乾脆放棄算了。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: -1
+          },
+          {
+            key: 'B',
+            sw: '我們可以一起看是不是有就業服務、工時調整或托育補助可以搭配，不然你一直在兩邊燒自己，很難走得長久。',
+            parentFollow: '如果真的有這種資源，我是想試看看啦。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -2
+          },
+          {
+            key: 'C',
+            sw: '如果你現在選擇專心工作，把孩子交給制度處理，十年後你覺得你會怎麼看自己？',
+            parentFollow: '（沉默很久）可能會很後悔吧...但現在也真的很累。(等待社工回應...)',
+            trustDelta: 7,
+            resistDelta: 1
+          }
+        ]
+      },
+      {
+        dimension: '生活型態與自我照顧',
+        parentOpening: '我現在每天就是上班、回家倒頭睡，連吃飯都常常亂吃，你叫我改那麼多，我真的覺得頭很痛。',
+        options: [
+          {
+            key: 'A',
+            sw: '如果你自己都快撐不住，要你同時當一個「穩定的大人」，其實有點不公平。我們先從一件你可以好好對自己做的事開始，好嗎？',
+            parentFollow: '可能是規定自己不要再喝到斷片吧...這個我想試看看。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -2
+          },
+          {
+            key: 'B',
+            sw: '你覺得現在的生活裡，有沒有任何一小塊是讓你覺得「還算有掌握感」的？',
+            parentFollow: '大概只有上班那幾個小時吧，至少有事情做。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'C',
+            sw: '如果你繼續這樣「完全不照顧自己」，孩子回家之後，可能會回到同一個循環，你可以接受嗎？',
+            parentFollow: '...我不想再重來一次啦，只是我不知道怎麼做比較好。(等待社工回應...)',
+            trustDelta: 7,
+            resistDelta: 1
+          }
+        ]
+      }
+    ]);
+
+    m(4, '安置第 4 個月（照顧環境改造）', [
+      {
+        dimension: '環境安全',
+        parentOpening: '（家訪）我有稍微整理啦，可是你們一定又覺得不夠乾淨。',
+        options: [
+          {
+            key: 'A',
+            sw: '我有看到沙發那邊通道比較出來了，這部分是你努力的地方。接下來我們一起看哪些是「一定要先處理」的安全點。',
+            parentFollow: '那個陽台我自己也覺得很危險，只是我不會裝欄杆。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -2
+          },
+          {
+            key: 'B',
+            sw: '如果用法院的標準來看，他們會看「小孩有沒有安全活動空間」、而不是「家裡像不像樣品屋」。我們就往這個方向調整。',
+            parentFollow: '聽你這樣說，好像沒有一開始想像那麼絕望。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '我還是得誠實說，以現在的狀況，還沒有到可以返家的程度，所以我們要抓緊這幾個月來改善。',
+            parentFollow: '我知道啦，你不要每次都用那種很嚴肅的口氣講，我會更慌。(等待社工回應...)',
+            trustDelta: 5,
+            resistDelta: 3
+          }
+        ]
+      },
+      {
+        dimension: '兒少空間 / 物理依附點',
+        parentOpening: '（你問孩子）如果以後回家，你最希望家裡哪裡可以變不一樣？',
+        options: [
+          {
+            key: 'A',
+            sw: '你剛剛說想要一個小桌子可以畫畫，那我們等等一起畫張圖，畫出你夢想中的那個角落，好嗎？',
+            parentFollow: '（孩子點頭）我要有很多色筆。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '那媽媽願不願意聽聽看，小孩心目中「安全的家」長怎樣？',
+            parentFollow: '（家長有點尷尬）好啦，那你跟媽媽說，你希望怎樣。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '我們會把你畫的圖拍起來，之後返家評估會議時也會拿給大家看，讓大家知道你期待的是什麼。',
+            parentFollow: '（孩子露出有點驚喜）真的喔？他們也會看？(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      }
+    ]);
+
+    m(5, '安置第 5 個月（親屬與社區支持）', [
+      {
+        dimension: '親屬參與',
+        parentOpening: '我媽說她老了，不想再被你們社工問東問西，所以叫我自己想辦法。',
+        options: [
+          {
+            key: 'A',
+            sw: '聽起來妳媽也有她累的地方，但她願意偶爾幫忙顧孫嗎？還是連這個她都不太想？',
+            parentFollow: '她說短時間可以，可是不要太常。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '我們可以用比較保護她的方式介入，例如先電話跟她說明，不一定要她一直來開會。',
+            parentFollow: '如果你們講得溫柔一點，她比較不會炸毛啦。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -2
+          },
+          {
+            key: 'C',
+            sw: '如果親屬都沒有辦法，那我們就要更現實地看，未來可能得靠機構或寄養來補位，這部分你願意一起面對嗎？',
+            parentFollow: '我不想小孩一直在外面長大啦，但如果我真的撐不起來，也只能這樣。(等待社工回應...)',
+            trustDelta: 7,
+            resistDelta: 1
+          }
+        ]
+      },
+      {
+        dimension: '社區與學校連結',
+        parentOpening: '之前鄰居通報，我看到他們就覺得很不爽，現在想到以後小孩回去還要在這裡長大就很尷尬。',
+        options: [
+          {
+            key: 'A',
+            sw: '被通報的人要在同一個社區生活，的確會很不舒服。你覺得對你來說，最難受的是「被看不起」還是「被誤會」？',
+            parentFollow: '兩個都有啊，我又不是完全不顧小孩。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '我們可以跟社區或里幹事談談，讓他們知道這不是在貼妳標籤，而是一起守住孩子安全的過程。',
+            parentFollow: '你們真的會這樣做喔？不是只會叫我去上課？(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '學校那邊，我會請輔導室幫忙確保小孩不會被同學貼標籤，這也需要你之後願意跟老師合作。',
+            parentFollow: '好啦，我會配合老師，不然他以後更可憐。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      }
+    ]);
+
+    m(6, '安置第 6 個月（中期檢討）', [
+      {
+        dimension: '親職積極度回顧',
+        parentOpening: '半年了，你們那邊的紀錄到底寫我怎樣？會不會寫我怠惰？',
+        options: [
+          {
+            key: 'A',
+            sw: '我可以直接跟你說：你有幾個地方進步滿明顯，也有幾個地方是停在原地。你想先聽哪一個？',
+            parentFollow: '先聽好的啦，不然我怕我直接關機。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'B',
+            sw: '我不會用「怠惰」這個字，可是有幾次親職課你臨時取消，也沒有主動聯絡補課，這部分法院看到也會有感覺。',
+            parentFollow: '好啦，下次我會先講，你寫清楚是我有通知，不是直接翹課。(等待社工回應...)',
+            trustDelta: 7,
+            resistDelta: 1
+          },
+          {
+            key: 'C',
+            sw: '如果以 0~10 分來看你這半年對孩子的付出，你會給自己幾分？我再把我的分數也說給你聽。',
+            parentFollow: '大概 6 吧，我有努力，但還沒到很好。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      },
+      {
+        dimension: '兒少依附與情緒',
+        parentOpening: '（機構回饋）小孩最近常問：「我是不是做錯事，才被丟在這裡？」',
+        options: [
+          {
+            key: 'A',
+            sw: '我會跟他說：這不是誰做錯事，而是大人現在還在練習怎麼當一個比較穩定的大人。你願不願意在探視時，也用類似的話跟他說？',
+            parentFollow: '我怕講到一半自己會哭欸。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '我們可以先幫你寫下你想跟他說的話，探視時你可以看著講，不用完全靠記憶。',
+            parentFollow: '這個好，因為我一緊張就會亂罵人。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '如果你覺得現在還講不出來，那也沒關係，我會先幫你在探視後跟他做情緒收尾，但你要答應我這件事我們不能一直拖。',
+            parentFollow: '好啦，你就先幫我擋一下，我會準備。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      }
+    ]);
+
+    m(7, '安置第 7 個月（復發風險）', [
+      {
+        dimension: '物質使用 / 衝動管控',
+        parentOpening: '那天心情很差，我有喝多一點，但我沒有像以前那樣喝到斷片，你們機構就打來關切，我壓力很大欸。',
+        options: [
+          {
+            key: 'A',
+            sw: '對你來說，「喝多一點」跟「以前那種斷片」的界線是什麼？我們要一起講清楚，才能避免下次又踩到。',
+            parentFollow: '以前是整個記不得，這次是還知道自己在幹嘛啦。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '這代表大家對你有期待，也怕你再掉回去以前的樣子。你自己覺得那天有沒有在「臨界值」附近？',
+            parentFollow: '有啦，只是我有硬把自己拖回家，不去找朋友續攤。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '如果之後再出現類似情況，我會希望你可以在當下先傳訊息給我或機構，不要等到事後才讓我們知道。',
+            parentFollow: '我會覺得很丟臉欸，但好啦，我可以試看看。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      },
+      {
+        dimension: '壓力下的親職反應',
+        parentOpening: '有時候想到以後可能還要上法院，我就整個抓狂，很想什麼都不要管。',
+        options: [
+          {
+            key: 'A',
+            sw: '對你來說，「抓狂」的時候最容易做出什麼讓你事後後悔的行為？這跟以前對孩子的管教有沒有關係？',
+            parentFollow: '以前我就是一抓狂就對他亂吼亂罵，有時候也會動手，現在想到就很怕再犯。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '如果我們可以先設計一個「抓狂急救包」，裡面有你可以做的三件事，也許可以讓那些衝動不那麼可怕。',
+            parentFollow: '你說什麼深呼吸、打電話之類的喔？(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '法院那邊看到的是「你遇到壓力時怎麼處理」，不是你有沒有情緒。這一點如果你有練習，我在報告裡會寫得很清楚。',
+            parentFollow: '那你真的要幫我寫喔，不要每次都只寫不好的。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      }
+    ]);
+
+    m(8, '安置第 8 個月（返家規劃雛形）', [
+      {
+        dimension: '親職分工',
+        parentOpening: '如果真的回家，他爸那邊你們會不會也要求一起上課？不然又變成只有我在扛。',
+        options: [
+          {
+            key: 'A',
+            sw: '只讓一個人改，整個系統還是會失衡，所以我們也會跟他談。不過前提是你願意把實際狀況講出來。',
+            parentFollow: '他一定會說都是我在鬧啦，你們不要被他騙。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '我們可以在會議上直接談「誰負責什麼」，比如功課是誰看、就醫誰陪，讓大家講清楚，不要只靠氣氛運作。',
+            parentFollow: '聽起來好像比較不會又吵成一團。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '如果他完全不願意配合，那我們也會在報告裡把責任區分清楚，不會全部算在你頭上。',
+            parentFollow: '你有這樣講我比較敢講實話。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      },
+      {
+        dimension: '返家後日常結構',
+        parentOpening: '我有點怕他回來之後，生活又亂掉，以前每天為了起床、寫功課就可以吵半天。',
+        options: [
+          {
+            key: 'A',
+            sw: '我們可以先一起排一個「返家日常時程表」，不是要很完美，而是讓你有一個底。',
+            parentFollow: '這樣我至少知道每天要盯哪些，不會整個人被拖著走。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'B',
+            sw: '你覺得以前吵得最兇的時間點是早上、下午還是晚上？那就是我們返家前要先想策略的地方。',
+            parentFollow: '應該是早上啦，他每次都賴床。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'C',
+            sw: '我會請機構社工在試返家前，先帶孩子一起畫出他理想中的「回家一天」，我們再來對照你能不能撐得住。',
+            parentFollow: '這樣比較公平啦，不然每次都只有你們問我。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      }
+    ]);
+
+    m(9, '安置第 9 個月（學校與外在功能）', [
+      {
+        dimension: '學校表現與支持',
+        parentOpening: '老師說他在學校有時候會突然發脾氣，我聽了很擔心，怕是學我以前的樣子。',
+        options: [
+          {
+            key: 'A',
+            sw: '這代表他在「學怎麼處理情緒」，只是不一定有工具。我們可以跟老師一起設計一些他在學校可以用的方法。',
+            parentFollow: '我也想學，不然以後他回家發脾氣，我又只會吼。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'B',
+            sw: '老師也會看你怎麼回應這件事，如果你把全部都怪在他身上，他會更不敢講實話。',
+            parentFollow: '我知道啦，以前我都會說「你給我收斂一點」，現在聽起來真的很難聽。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'C',
+            sw: '我們可以一起跟老師談談「家裡在練習什麼」，讓學校那邊也用一樣的語言，對他比較不會混亂。',
+            parentFollow: '好，這樣他就不會這邊一套那邊一套。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      },
+      {
+        dimension: '同儕與標籤',
+        parentOpening: '他說有同學問他「是不是壞小孩才會被送去機構」，我聽了超心痛。',
+        options: [
+          {
+            key: 'A',
+            sw: '這句話很傷，他講出來代表他信任你。你那時候第一個反應是什麼？',
+            parentFollow: '我就很衝動說「以後不要理那種同學」，現在想想好像不太好。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '我們可以一起幫他想幾句回應，例如「是大人還在練習怎麼照顧，不是我壞」，讓他下次遇到時不會完全卡住。',
+            parentFollow: '這個好，我也想學怎麼講比較不會一直罵人。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '我也會請學校這邊注意霸凌或取笑的情況，如果有需要，可以安排班級輔導，不會讓他一個人扛。',
+            parentFollow: '謝謝啦，不然我真的會很想去學校抓人。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      }
+    ]);
+
+    m(10, '安置第 10 個月（試返家）', [
+      {
+        dimension: '試返家安排',
+        parentOpening: '你們說要試返家一個週末，我其實超怕的，怕自己撐不住，可是又很期待。',
+        options: [
+          {
+            key: 'A',
+            sw: '你怕的是哪一段？半夜他睡不著？還是早上不肯起床？我們可以逐段拆開來處理。',
+            parentFollow: '應該是晚上吧，他以前都會一直起來要喝水。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'B',
+            sw: '我們會在試返家前跟你把緊急聯絡方式寫得很清楚，你不需要一個人硬撐到崩潰才求救。',
+            parentFollow: '這樣我比較敢試，不會覺得失敗一次就完蛋。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '這次試返家的紀錄會被拿來當作之後評估的參考，我會寫上你努力承接他的地方，也會寫上我們看到的風險。',
+            parentFollow: '你就寫真實的就好啦，不要特地幫我加分，我也會怕。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      },
+      {
+        dimension: '兒少回家情緒',
+        parentOpening: '（機構回饋）試返家回來後，他說「家裡有點可怕又有點想念」。',
+        options: [
+          {
+            key: 'A',
+            sw: '對他來說，家既是想念也是害怕。這句話其實很誠實，你願不願意也聽聽看他怕的是哪一部分？',
+            parentFollow: '我怕聽了會很難過欸，可是我知道還是得聽。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '下次探視時，我可以先陪你們一起談這個議題，讓他知道大人現在也在努力讓那個「可怕」變少。',
+            parentFollow: '這樣比較不會講沒幾句就吵起來。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '我會把他的原話寫進報告，讓法院或委員看到，返家不是只有「要不要」，而是要不要一起處理這份害怕。',
+            parentFollow: '好，讓他們也知道小孩在想什麼，不要只看我們大人。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      }
+    ]);
+
+    m(11, '安置第 11 個月（決策前夕）', [
+      {
+        dimension: '家長對決策的期待與恐懼',
+        parentOpening: '最近一直在想，如果你們最後說不同意返家，是不是就代表我一輩子都被貼「不適任父母」的標籤。',
+        options: [
+          {
+            key: 'A',
+            sw: '聽得出來你很怕被判「一輩子的失格」。就算真的走到停止親權，那也不代表你永遠不能跟他建立新的關係，只是方式會不一樣。',
+            parentFollow: '可是那樣我還算是他媽媽嗎？(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 1
+          },
+          {
+            key: 'B',
+            sw: '現在還有一段時間，你可以選擇「讓這幾個月什麼都不改」，也可以選擇「讓委員看到你真的有不一樣」。你比較想留給他的，是哪一種畫面？',
+            parentFollow: '至少不要像以前那樣一直打吧，我不想他長大只記得我在罵他。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '我不能保證結果會是什麼，但我可以保證，這份報告裡會寫進你這一年做過的每一個努力，也會寫進風險沒變好的地方。',
+            parentFollow: '你講這句，我比較敢繼續做下去，不然我好想直接放棄。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          }
+        ]
+      },
+      {
+        dimension: '兒少聲音納入',
+        parentOpening: '（兒少晤談）他說：「我想回家，可是如果回家又被打，我就想再回機構。」',
+        options: [
+          {
+            key: 'A',
+            sw: '這句話其實很成熟，他知道自己想要什麼，也知道要保護自己。你願不願意把這句話轉達給大人聽？',
+            parentFollow: '我怕講了他爸會爆炸欸。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '我們可以在決策會議前安排一個「兒少意見呈現」，不一定要他本人到場，但把他的話忠實寫進去。',
+            parentFollow: '好，我覺得他應該要被聽見。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '我也會跟他說，不管結果是什麼，他都有權利提出自己的感覺，不是只有大人的決定才算數。',
+            parentFollow: '謝謝你啦，不然以前都只有我們大人在講。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          }
+        ]
+      }
+    ]);
+
+    m(12, '安置第 12 個月（結案評估）', [
+      {
+        dimension: '結案前回顧',
+        parentOpening: '一年了，你們現在一句話，就決定我要不要當媽了？',
+        options: [
+          {
+            key: 'A',
+            sw: '這一年你做的每一個選擇，其實也都在慢慢決定這件事，不是只有我們的一句話。',
+            parentFollow: '聽起來很殘酷，但好像也是事實。(等待社工回應...)',
+            trustDelta: 8,
+            resistDelta: 0
+          },
+          {
+            key: 'B',
+            sw: '我們可以一起回頭看：你從哪一個地方開始不一樣？又有哪些地方到現在還沒有動？這兩個都會被寫進報告。',
+            parentFollow: '至少我現在不會再打到他瘀青啦，這個我可以很確定。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '不管最後是返家、延長安置，還是走到停止親權，我都希望你能夠記得：你有權利為自己跟孩子的關係負責，也有權利把自己活成不一樣的大人。',
+            parentFollow: '...謝謝你啦，雖然我常常對你發脾氣。(等待社工回應...)',
+            trustDelta: 10,
+            resistDelta: -1
+          }
+        ]
+      },
+      {
+        dimension: '最終會議前情緒整理',
+        parentOpening: '明天要開會，我一想到一堆人坐在那裡看我，就想吐。',
+        options: [
+          {
+            key: 'A',
+            sw: '我們可以先預演一次，我當委員，你當你自己，先把最想說的那一段講給我聽。',
+            parentFollow: '好啦，你等一下不要笑我就好。(等待社工回應...)',
+            trustDelta: 9,
+            resistDelta: -1
+          },
+          {
+            key: 'B',
+            sw: '如果你真的在會議上說不出來，也沒關係，我會把我們練習的重點講出來，但前提是你要同意我這樣做。',
+            parentFollow: '我相信你啦，這一年你陪我很多。(等待社工回應...)',
+            trustDelta: 10,
+            resistDelta: -1
+          },
+          {
+            key: 'C',
+            sw: '會議裡會有不同單位，不是每個人都知道你這一年走得多辛苦，所以我會先幫你把那個「完整故事」放進報告開頭。',
+            parentFollow: '那就拜託你了，不然我真的很怕又變成「壞媽媽故事」。(等待社工回應...)',
+            trustDelta: 10,
+            resistDelta: -1
+          }
+        ]
+      }
+    ]);
+
+    return months;
+  }
+
+  // === 安置個案特質敘述 ===
+  function getPlacementProfileLabel(scenarioObj) {
+    if (!scenarioObj) return '一位正在安置中的兒少與其照顧者';
+    if (scenarioObj.id === 'A1_NAS') {
+      return '毒品戒斷中的嬰兒「小恩」與其母親';
+    }
+    if (scenarioObj.id === 'B2_severe') {
+      return '曾遭嚴重體罰的國小生「阿哲」與其父親';
+    }
+    if (scenarioObj.id === 'C1_alone') {
+      return '曾多次被獨留在家的幼兒「小妤」與其母親';
+    }
+    return '一位正在安置中的兒少與其照顧者';
+  }
+
+  // === 安置啟動 ===
+  function startPlacement() {
+    clearOptions();
+    setPhase(4, '安置階段');
+
+    let profileScenario;
+    if (state.assessmentDecision === 'placement') {
+      // 符合評估的安置：延續同一個案
+      profileScenario = state.scenario;
+      state.placementProfile = profileScenario.id;
+      appendMeta('【系統】依前述 SDM 評估，本案兒少已啟動安置，本階段安置歷程將延續同一個案的特質與風險脈絡。(等待社工回應...)');
+    } else {
+      // 非安置決策：自動抽取安置個案
+      const pool = scenarios;
+      profileScenario = pool[Math.floor(Math.random() * pool.length)];
+      state.placementProfile = profileScenario.id;
+      if (profileScenario.id === state.scenario.id) {
+        appendMeta('【系統】雖然前述評估未將安置列為首選，為訓練安置歷程，本階段將以同一個案進行「假設安置」模擬。(等待社工回應...)');
+      } else {
+        appendMeta('【系統】本案原評估不以安置為首選，為訓練安置歷程，系統已自動抽取另一位正在安置中的兒少作為模擬個案：「' +
+          profileScenario.type + '」。(等待社工回應...)');
+      }
+    }
+
+    const profileLabel = getPlacementProfileLabel(profileScenario);
+    appendMeta('【個案特質延伸】：本階段安置模擬對象為 ' + profileLabel + '，其安置歷程將結合前述風險情境與親職特質進行演練。(等待社工回應...)');
+
+    state._placementMonths = generatePlacementMonths(state.placementProfile);
+    state.placementMonth = 1;
+    state.monthEncounterIndex = 0;
+    state.totalPlacementEncounters = 0;
+    updateMeters();
+
+    appendMeta('【階段三】安置開始，你將陪著家長與孩子走過 12 個月，每月至少兩回合互動，關注親職能力、生活穩定與依附重建。(等待社工回應...)');
+    nextPlacementEncounter();
+  }
+
+  function nextPlacementEncounter() {
+    const months = state._placementMonths || [];
+    if (state.placementMonth > 12) {
+      finishCase();
+      return;
+    }
+    const monthData = months.find(m => m.month === state.placementMonth);
+    if (!monthData) {
+      state.placementMonth++;
+      state.monthEncounterIndex = 0;
+      updateMeters();
+      nextPlacementEncounter();
+      return;
+    }
+    if (state.monthEncounterIndex >= monthData.encounters.length) {
+      state.placementMonth++;
+      state.monthEncounterIndex = 0;
+      updateMeters();
+      nextPlacementEncounter();
+      return;
+    }
+
+    const enc = monthData.encounters[state.monthEncounterIndex];
+    appendMeta(`【安置月份】：${monthData.label} · 第 ${state.monthEncounterIndex + 1} 回合`);
+    appendBubble('parent', `${enc.parentOpening} (等待社工回應...)`);
+    renderPlacementOptions(enc);
+  }
+
+  function renderPlacementOptions(enc) {
+    clearOptions();
+    const container = document.getElementById('optionsContainer');
+    enc.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.classList.add('option-btn');
+      btn.innerHTML = `<span class="option-key">${opt.key}</span><span class="option-text">${opt.sw}<span class="badge-dimension">${enc.dimension}</span></span>`;
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('button').forEach(b => b.disabled = true);
+        appendBubble('worker', opt.sw + ' (等待社工回應...)');
+        setTimeout(() => {
+          appendBubble('parent', opt.parentFollow);
+        }, 250);
+        adjustTrust(opt.trustDelta || 0);
+        adjustResistance(opt.resistDelta || 0);
+        state.investigationScore += (opt.trustDelta || 0) - (opt.resistDelta || 0) / 3;
+        state.totalPlacementEncounters += 1;
+        state.monthEncounterIndex += 1;
+        setTimeout(nextPlacementEncounter, 700);
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  // === 結案判定 ===
+  function finishCase() {
+    clearOptions();
+    setPhase(5, '結案判定');
+
+    const scoreBase = state.investigationScore + state.supervisorScore * 2 + state.trust - state.resistance;
+    const reunifyPass = scoreBase > 20 && state.resistance < 60;
+    const terminatePR = scoreBase < -10 || state.resistance > 80;
+
+    if (reunifyPass && !terminatePR) {
+      const card = document.createElement('div');
+      card.classList.add('ending-card');
+      card.innerHTML = `
+        <div><strong>結案決定：漸進式返家 · 通過</strong></div>
+        <div style="margin-top:4px;">
+          因家長在安置期間持續參與親職教育、驗尿結果穩定、探視互動逐漸改善，
+          團隊評估 SDM-R 風險已降至中/低，安全計畫具體可行，決議採取「漸進式返家」。
+        </div>
+        <ul style="margin:6px 0 0 16px; padding:0; font-size:12px;">
+          <li>返家初期維持每週家訪與兒少單獨晤談。</li>
+          <li>三個月後再評估，如無再通報與暴力事件，逐步解除保護管束。</li>
+        </ul>
+      `;
+      document.getElementById('optionsContainer').appendChild(card);
+      appendBubble('system', '你在高壓體制與家長情緒之間，努力守住了孩子的安全，也保留了親子修復的可能。(等待社工回應...)');
+    } else if (terminatePR) {
+      const card = document.createElement('div');
+      card.classList.add('ending-card', 'danger');
+      card.innerHTML = `
+        <div><strong>結案決定：聲請停止親權 · 通過</strong></div>
+        <div style="margin-top:4px;">
+          經一年以上安置與密集處遇，家長持續失聯／物質使用未改善／暴力行為持續，
+          SDM-R 風險維持高度，團隊認為返家將嚴重危及兒少最佳利益，決議協同檢察官向法院聲請停止親權。
+        </div>
+        <ul style="margin:6px 0 0 16px; padding:0; font-size:12px;">
+          <li>後續啟動國內／國際收出養或長期安置安排。</li>
+          <li>保留兒少在安全前提下，未來選擇與原生家庭接觸之自主權。</li>
+        </ul>
+      `;
+      document.getElementById('optionsContainer').appendChild(card);
+      appendBubble('system', '這不是一個輕易的決定，但在重複風險與有限資源之間，你與團隊最終選擇了把安全放在最前面。(等待社工回應...)');
+    } else {
+      const card = document.createElement('div');
+      card.classList.add('ending-card');
+      card.innerHTML = `
+        <div><strong>結案決定：漸進式返家 · 有條件通過</strong></div>
+        <div style="margin-top:4px;">
+          你與團隊對返家仍有擔心，但看到家長部分改變與孩子對家庭的期待，決議給予高度監督下的漸進式返家，
+          同時保留未來必要時啟動停止親權程序的空間。
+        </div>
+        <ul style="margin:6px 0 0 16px; padding:0; font-size:12px;">
+          <li>返家後三個月內如再有重大通報，優先啟動司法程序。</li>
+          <li>持續安排強制性親職教育與家庭支持服務。</li>
+        </ul>
+      `;
+      document.getElementById('optionsContainer').appendChild(card);
+      appendBubble('system', '這是一個不完美但真實的結局，兒少保護工作很少有絕對正確的答案，只有在限制中盡量守住的那條線。(等待社工回應...)');
+    }
+
+    appendMeta('模擬結束：重新整理頁面，即可再次按下「開始模擬」抽取不同劇本與路徑。(等待社工回應...)');
+  }
+
+  // === 初始行動選項 ===
+  function renderFirstActionOptions() {
+    const container = document.getElementById('firstActionOptions');
+    container.innerHTML = '';
+    const options = [
+      {
+        key: 'A',
+        label: '🏥 前往醫院 / 機構 / 學校查訪',
+        onClick: () => {
+          appendBubble('worker', '我是家防中心社工，先到單位了解專業人員的擔心，再安排與你們面談。(等待社工回應...)');
+          appendMeta('你選擇先在專業系統內蒐集資訊，準備進一步家訪。');
+          adjustTrust(8);
+          setWait('(等待社工進一步家訪...)');
+          startInvestigation('facility');
+        }
+      },
+      {
+        key: 'B',
+        label: '📞 先電話聯繫家長',
+        onClick: () => {
+          appendBubble('worker', '我是家防中心的社工，今天先打電話跟你確認孩子目前的情況。(等待社工回應...)');
+          appendMeta('你選擇先電話暖身，評估家長態度，再決定是否立即家訪。');
+          adjustTrust(3);
+          adjustResistance(5);
+          setWait('(等待社工安排家訪...)');
+          startInvestigation('phone');
+        }
+      },
+      {
+        key: 'C',
+        label: '🔔 直接家訪，現場了解',
+        onClick: () => {
+          appendBubble('worker', '我是社會局家防中心社工，因為有關於孩子安全的通報，所以今天直接過來關心。(等待社工回應...)');
+          appendMeta('你選擇直接進家現勘，風險掌握高但可能加劇家長防衛。');
+          adjustResistance(10);
+          setWait('(家長的反應即將出現...)');
+          startInvestigation('home');
+        }
+      }
+    ];
+    for (const opt of options) {
+      const btn = document.createElement('button');
+      btn.classList.add('option-btn');
+      btn.innerHTML = `<span class="option-key">${opt.key}</span><span class="option-text">${opt.label}</span>`;
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('button').forEach(b => b.disabled = true);
+        opt.onClick();
+      });
+      container.appendChild(btn);
+    }
+  }
+
+  // === 模擬啟動 ===
+  function startSimulation() {
+    if (state.started) return;
+    state.started = true;
+
+    const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+    state.scenario = scenario;
+    state.trust = 0;
+    state.resistance = 0;
+    state.investigationIndex = 0;
+    state.deadlockTriggered = false;
+    state.placementMonth = 1;
+    state.monthEncounterIndex = 0;
+    state.investigationScore = 0;
+    state.supervisorScore = 0;
+    state.totalPlacementEncounters = 0;
+    state.safetyDecision = null;
+    state.riskDecision = null;
+    state.assessmentDecision = null;
+    state.placementProfile = null;
+
+    pickSupervisor();
+
+    document.getElementById('scenarioTag').textContent = `${scenario.group} · ${scenario.type}`;
+    document.getElementById('childInfo').textContent = scenario.childInfo;
+    document.getElementById('caregiverInfo').textContent = scenario.caregiverInfo;
+    document.getElementById('reportReason').textContent = scenario.reportReason;
+    document.getElementById('historyInfo').textContent = scenario.history;
+    document.getElementById('riskHint').textContent = scenario.riskHint;
+
+    const log = document.getElementById('dialogueLog');
+    log.innerHTML = '';
+    appendMeta(`系統：已鎖定劇本「${scenario.type}」，督導人格已抽籤完成。(等待社工回應...)`);
+
+    renderFirstActionOptions();
+    updateMeters();
+    setPhase(1, '調查階段');
+    setWait('(等待社工回應...)');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('startBtn').addEventListener('click', startSimulation);
+  });
+</script>
+</body>
+</html>
